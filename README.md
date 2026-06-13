@@ -86,3 +86,36 @@ Grazie agli strumenti dell'analisi esplorativa e della classificazione, Wikimedi
 
 Il progetto offre a Wikimedia un potente strumento di analisi dei dati e classificazione automatica per migliorare la gestione dei propri contenuti.
 Attraverso l'utilizzo di tecniche avanzate di data science e machine learning, Wikimedia sarà in grado di ottimizzare la propria infrastruttura informativa e offrire un servizio di qualità superiore agli utenti di tutto il mondo.
+
+---
+
+## Dati
+
+### Dataset completo (non versionato)
+
+Il dataset completo vive su S3 ed è **gitignorato** (troppo grande per il repo e per la CI):
+
+| Proprietà | Valore |
+|-----------|--------|
+| URL | <https://proai-datasets.s3.eu-west-3.amazonaws.com/wikipedia.csv> |
+| Dimensione | ~957 MB (1.003.477.941 byte) |
+| Righe | 153.232 |
+| Colonne | `title`, `summary`, `documents`, `categoria` (+ indice) |
+| Categorie | 15 (≈10.000 articoli ciascuna) |
+
+Categorie: `culture`, `economics`, `energy`, `engineering`, `finance`, `humanities`, `medicine`, `pets`, `politics`, `research`, `science`, `sports`, `technology`, `trade`, `transport`.
+
+Per scaricarlo (idempotente; `--force` per forzare):
+
+```bash
+python -m wikianalysis.data download
+```
+
+### Campione versionato (`data/wikipedia_sample.csv`)
+
+Per test e CI è committato un **campione bilanciato**: 40 articoli casuali per categoria (600 righe, ~4 MB), riproducibile con seed fisso. Permette di eseguire EDA, pipeline e test senza scaricare ~1 GB. Per rigenerarlo (richiede il dataset completo):
+
+```bash
+python -m wikianalysis.data sample          # 40 righe/categoria (default)
+python -m wikianalysis.data sample -n 20    # campione ancora più piccolo
+```
