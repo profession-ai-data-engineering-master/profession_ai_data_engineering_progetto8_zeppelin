@@ -19,6 +19,7 @@ def get_spark_session(
     master: str = "local[*]",
     *,
     shuffle_partitions: int = 8,
+    driver_memory: str | None = None,
 ) -> SparkSession:
     """Crea (o riusa) una ``SparkSession`` locale pronta per l'analisi.
 
@@ -28,6 +29,11 @@ def get_spark_session(
         shuffle_partitions: numero di partizioni di shuffle. Il default di Spark
             (200) è sovradimensionato per un dataset che gira su una singola
             macchina e rende le query inutilmente lente.
+        driver_memory: heap del driver (es. ``"8g"``). In local mode il driver
+            esegue *tutto* il lavoro, e il default (~1 GB) non basta per il
+            dataset completo (CountVectorizer + cache → ``OutOfMemoryError``).
+            Va impostato **prima** dell'avvio della JVM, quindi ha effetto solo
+            alla prima creazione della sessione nel processo.
 
     Returns:
         Una ``SparkSession`` attiva. Le chiamate successive riusano la stessa
@@ -39,12 +45,20 @@ def get_spark_session(
     os.environ.setdefault("PYSPARK_PYTHON", python_exe)
     os.environ.setdefault("PYSPARK_DRIVER_PYTHON", python_exe)
 
-    spark = (
+    # In local mode la memoria del driver non è modificabile dopo l'avvio della
+    # JVM: la si passa a spark-submit via PYSPARK_SUBMIT_ARGS prima del launch.
+    if driver_memory is not None:
+        os.environ["PYSPARK_SUBMIT_ARGS"] = f"--driver-memory {driver_memory} pyspark-shell"
+
+    builder = (
         SparkSession.builder.appName(app_name)
         .master(master)
         .config("spark.sql.shuffle.partitions", shuffle_partitions)
         .config("spark.ui.showConsoleProgress", "false")
-        .getOrCreate()
     )
+    if driver_memory is not None:
+        builder = builder.config("spark.driver.memory", driver_memory)
+
+    spark = builder.getOrCreate()
     spark.sparkContext.setLogLevel("ERROR")
     return spark
