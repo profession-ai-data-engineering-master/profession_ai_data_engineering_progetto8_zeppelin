@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wikipedia-analysis"
+version = "0.1.0"
+description = "Analisi descrittiva e classificazione automatica degli articoli di Wikipedia con Apache Spark (caso d'uso Wikidata Insights)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Federico Vita", email = "federico.vita1997@gmail.com" }]
+keywords = ["big-data", "apache-spark", "pyspark", "nlp", "text-classification", "wikipedia"]
+
+dependencies = [
+    "pyspark~=4.1.2",
+    "numpy>=2,<3",
+    "pandas~=2.3",
+    "matplotlib~=3.10",
+    "seaborn~=0.13",
+    "wordcloud~=1.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff~=0.15.0",
+    "mypy~=1.20.0",
+    "pytest~=8.3",
+    "pytest-cov~=5.0",
+]
+notebook = [
+    "jupyterlab~=4.4",
+    "ipykernel~=6.28",
+]
+
+[tool.setuptools]
+packages = ["wikianalysis"]
+
+# --- Lint -------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+# --- Type checking ----------------------------------------------------------
+[tool.mypy]
+python_version = "3.12"
+warn_unused_ignores = true
+warn_redundant_casts = true
+ignore_missing_imports = true
+files = ["wikianalysis"]
+
+# --- Test -------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=wikianalysis --cov-report=term-missing"

@@ -1,0 +1,41 @@
+# Byte-compiled / optimized
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Test / coverage / type-check caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+.jupyter/
+.jupyter_ystore.db*
+
+# Spark (artefatti generati dall'esecuzione locale)
+spark-warehouse/
+metastore_db/
+derby.log
+
+# Dati scaricati (non versionati: si rigenerano dallo script di download)
+data/wikipedia.csv
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
