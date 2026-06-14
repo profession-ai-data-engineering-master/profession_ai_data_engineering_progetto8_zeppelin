@@ -22,6 +22,8 @@ import urllib.request
 from pathlib import Path
 
 import pandas as pd
+from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql.functions import col, lower, regexp_replace
 
 #: URL pubblico del dataset completo su S3.
 DATASET_URL = "https://proai-datasets.s3.eu-west-3.amazonaws.com/wikipedia.csv"
@@ -43,6 +45,68 @@ DEFAULT_ROWS_PER_CATEGORY = 40
 
 #: Seed per rendere il campionamento riproducibile.
 DEFAULT_SEED = 42
+
+#: Colonne testuali/etichetta che non possono essere nulle.
+REQUIRED_COLUMNS = ["title", "summary", "documents", "categoria"]
+
+#: Regex per rimuovere i tag HTML residui dal testo.
+CLEAN_HTML = "<[^>]+>"
+
+#: Regex per rimuovere tutto ciò che non è alfanumerico o spazio.
+CLEAN_SPECIAL_CHARS = "[^a-zA-Z0-9\\s]"
+
+
+def read_raw(spark: SparkSession, csv_path: str | Path) -> DataFrame:
+    """Legge il CSV grezzo di Wikipedia in un DataFrame Spark.
+
+    Il CSV contiene testo multilinea con virgolette: le opzioni ``multiLine`` e
+    ``escape`` sono necessarie per non spezzare i record sui ritorni a capo
+    interni ai documenti.
+
+    Args:
+        spark: sessione Spark attiva.
+        csv_path: percorso del CSV (completo o campione).
+
+    Returns:
+        Il DataFrame grezzo, una riga per articolo.
+    """
+    return (
+        spark.read.option("header", True)
+        .option("multiLine", True)
+        .option("quote", '"')
+        .option("escape", '"')
+        .csv(str(csv_path))
+    )
+
+
+def scrub(df: DataFrame) -> DataFrame:
+    """Pulisce il DataFrame grezzo per analisi e modellazione.
+
+    Tre passi: rimozione dell'indice e dei duplicati, scarto delle righe con
+    campi essenziali nulli, normalizzazione di ``documents`` (rimozione di
+    markup HTML e caratteri speciali, lowercasing).
+
+    Args:
+        df: DataFrame grezzo prodotto da :func:`read_raw`.
+
+    Returns:
+        Il DataFrame pulito.
+    """
+    return (
+        df.drop("_c0")
+        .dropDuplicates()
+        .dropna(subset=REQUIRED_COLUMNS)
+        .withColumn(
+            "documents",
+            lower(
+                regexp_replace(
+                    regexp_replace(col("documents"), CLEAN_HTML, ""),
+                    CLEAN_SPECIAL_CHARS,
+                    "",
+                )
+            ),
+        )
+    )
 
 
 def download_dataset(

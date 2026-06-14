@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wikipedia-analysis"
-version = "0.1.0"
+version = "0.2.0"
 description = "Analisi descrittiva e classificazione automatica degli articoli di Wikipedia con Apache Spark (caso d'uso Wikidata Insights)."
 readme = "README.md"
 requires-python = ">=3.10"
