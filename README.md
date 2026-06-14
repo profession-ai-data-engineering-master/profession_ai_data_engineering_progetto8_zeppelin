@@ -1,6 +1,6 @@
 # Analisi e Classificazione di Wikipedia con Apache Spark
 
-[![CI](https://github.com/profession-ai-data-engineering-master/profession_ai_data_engineering_progetto8_zeppelin/actions/workflows/ci.yml/badge.svg)](https://github.com/profession-ai-data-engineering-master/profession_ai_data_engineering_progetto8_zeppelin/actions/workflows/ci.yml)
+[![CI](https://github.com/profession-ai-data-engineering-master/profession_ai_data_engineering_progetto8/actions/workflows/ci.yml/badge.svg)](https://github.com/profession-ai-data-engineering-master/profession_ai_data_engineering_progetto8/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.12-blue)
 ![Spark](https://img.shields.io/badge/Apache%20Spark-4.1-orange)
 ![coverage](https://img.shields.io/badge/coverage-87%25-brightgreen)
