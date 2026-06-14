@@ -27,7 +27,6 @@ from pyspark.ml.feature import (
     StringIndexerModel,
     Tokenizer,
 )
-from pyspark.mllib.evaluation import MulticlassMetrics
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import concat_ws
 
@@ -111,14 +110,22 @@ def evaluate(predictions: DataFrame) -> dict[str, float]:
 def confusion_matrix(predictions: DataFrame) -> np.ndarray:
     """Restituisce la matrice di confusione come array NumPy.
 
+    Calcolata con le sole API DataFrame/pandas (niente ``MulticlassMetrics``
+    della vecchia MLlib RDD, che emetterebbe un ``FutureWarning`` sul
+    ``SQLContext`` deprecato). Righe = etichetta reale, colonne = predizione,
+    entrambe ordinate per indice ``0..n-1``.
+
     Args:
-        predictions: output di ``model.transform(test_data)``.
+        predictions: output di ``model.transform(test_data)`` (colonne
+            ``label`` e ``prediction``).
 
     Returns:
         Matrice quadrata ``(n_classi, n_classi)`` con i conteggi.
     """
-    prediction_and_labels = predictions.select("prediction", "label").rdd.map(tuple)
-    return MulticlassMetrics(prediction_and_labels).confusionMatrix().toArray()
+    pdf = cast(pd.DataFrame, predictions.select("label", "prediction").toPandas()).astype(int)
+    n = int(pdf.to_numpy().max()) + 1
+    matrix = pd.crosstab(pdf["label"], pdf["prediction"])
+    return matrix.reindex(index=range(n), columns=range(n), fill_value=0).to_numpy()
 
 
 def label_names(model: PipelineModel) -> list[str]:

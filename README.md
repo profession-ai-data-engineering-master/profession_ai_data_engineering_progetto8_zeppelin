@@ -47,10 +47,10 @@ Il notebook segue il framework **OSEMN**, con tutta la logica incapsulata nel pa
 
 | Metrica | Valore |
 |---|---|
-| Accuracy | 0.8426 |
-| Weighted Precision | 0.8434 |
-| Weighted Recall | 0.8426 |
-| Weighted F1 | 0.8429 |
+| Accuracy | 0.8452 |
+| Weighted Precision | 0.8459 |
+| Weighted Recall | 0.8452 |
+| Weighted F1 | 0.8454 |
 
 Un modello **semplice ma solido**: ~0.84 di accuracy come baseline interpretabile. La confusion matrix mostra confusioni solo tra categorie semanticamente affini (es. `medicine`↔`research`); i token più influenti (*hospital*, *species*, *power*, *station*…) sono coerenti con le rispettive categorie.
 
